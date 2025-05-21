@@ -1,0 +1,98 @@
+/* Color Palette */
+:root {
+  --primary: #bcb6ff;
+  --secondary: #b8e1ff;
+  --accent: #a9fff7;
+  --highlight: #94fbab;
+  --text: #082c2c;
+  --muted: #82aba1;
+  --bg-light: #f4fdfc;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg-light);
+  line-height: 1.6;
+}
+
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+header.hero {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+header.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+header.hero p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.section {
+  padding: 3rem 2rem;
+  background-color: white;
+}
+
+.section.alt {
+  background-color: var(--accent);
+}
+
+.section h2 {
+  font-size: 2rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.section ul {
+  list-style: none;
+  margin-top: 1rem;
+}
+
+.section ul li {
+  background: var(--highlight);
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  color: #000;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--highlight);
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: var(--muted);
+}
+
+.footer {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--muted);
+  color: white;
+}
