@@ -1,71 +1,87 @@
-body,
-html {
+/* Reset */
+* {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  scroll-behavior: smooth;
-  background: #f5faff;
-  color: #333;
+  box-sizing: border-box;
 }
 
-header {
+html,
+body {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5faff;
+  color: #333;
+  scroll-behavior: smooth;
   position: relative;
-  height: 100vh;
-  color: white;
+}
+
+/* Background Canvas */
+canvas#bg-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Header */
+header {
+  height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
 }
 
 header .overlay {
-  position: relative;
   z-index: 2;
-  text-align: center;
 }
 
 header h1 {
   font-size: 5rem;
-  margin: 0;
   color: #bcb6ff;
+  text-shadow: 2px 2px 2px black;
+  margin-bottom: 1rem;
 }
 
 header p {
   font-size: 1.5rem;
-  margin: 1rem 0;
-  color: #ffffff;
+  color: #000000;
 }
 
 .cta {
   display: inline-block;
-  background: #94fbab;
-  color: #333;
-  padding: 1rem 2rem;
   margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background-color: #94fbab;
+  color: #333;
   text-decoration: none;
   font-weight: bold;
-  border-radius: 5px;
-  transition: background 0.3s;
+  border-radius: 8px;
+  transition: background-color 0.3s;
 }
 
 .cta:hover {
-  background: #82aba1;
+  background-color: #82aba1;
   color: white;
 }
 
-canvas#bg-animation {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
+/* Main Content */
 main {
-  padding: 2rem;
+  position: relative;
+  z-index: 1;
+  padding: 3rem 1.5rem;
   max-width: 800px;
   margin: auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-top: -50px;
 }
 
 section {
@@ -75,15 +91,26 @@ section {
 section h2 {
   color: #82aba1;
   font-size: 2rem;
+  margin-bottom: 1rem;
+  text-shadow: 0.5px 0.5px 0.5px black;
 }
 
 ul {
-  padding-left: 1.5rem;
+  list-style: none;
+  padding-left: 0;
 }
 
+ul li {
+  margin-bottom: 0.75rem;
+}
+
+/* Footer */
 footer {
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
   background: #bcb6ff;
   color: #333;
+  position: relative;
+  z-index: 1;
+  margin-top: 5rem;
 }

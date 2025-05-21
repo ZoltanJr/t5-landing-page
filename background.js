@@ -1,5 +1,6 @@
 const canvas = document.getElementById('bg-animation');
 const ctx = canvas.getContext('2d');
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -18,7 +19,6 @@ class Particle {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    // wrap around
     if (this.x < 0) this.x = canvas.width;
     if (this.x > canvas.width) this.x = 0;
     if (this.y < 0) this.y = canvas.height;
