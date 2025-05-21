@@ -3,60 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkillForge - Smarter Hiring</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>T5: Gamified Hiring Platform</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="hero">
-      <div class="container">
-        <h1>SkillForge</h1>
-        <p>Gamified Candidate Screening for Entry-Level Engineers</p>
-        <a href="#learn-more" class="btn">Learn More</a>
+    <header>
+      <div class="overlay">
+        <h1>T5</h1>
+        <p>Gamified Hiring Platform</p>
+        <a href="#about" class="cta">Learn More</a>
       </div>
+      <canvas id="bg-animation"></canvas>
     </header>
 
-    <section class="section" id="learn-more">
-      <div class="container">
-        <h2>Why SkillForge?</h2>
+    <main>
+      <section id="about">
+        <h2>Why T5?</h2>
         <p>
-          Tired of hiring based on resumes that don’t tell the full story?
-          SkillForge uses interactive games to assess how candidates think,
-          collaborate, and solve problems—before you even see their resume.
+          T5 is a smart hiring platform that goes beyond résumés. Through a
+          suite of gamified challenges, we help companies discover hidden talent
+          — especially those who might lack credentials but shine in
+          collaboration, creativity, and critical thinking.
         </p>
+      </section>
+
+      <section id="features">
+        <h2>Key Features</h2>
         <ul>
-          <li>🧠 Skills over credentials</li>
-          <li>🎮 Gamified, bias-resistant testing</li>
-          <li>🤝 Customizable to your team’s workflow</li>
-          <li>🔒 Hard to cheat with AI tools</li>
+          <li>🎮 Gamified assessments tailored to your roles</li>
+          <li>🧠 Hard-to-game evaluations that test real skill</li>
+          <li>🤝 Measure collaboration, problem-solving, and leadership</li>
+          <li>🔧 Fully customizable to fit your company’s culture and needs</li>
         </ul>
-      </div>
-    </section>
+      </section>
 
-    <section class="section alt">
-      <div class="container">
-        <h2>Built for HR & Hiring Managers</h2>
-        <p>
-          We help HR teams cut through the noise and deliver qualified,
-          high-potential candidates. Our platform makes it easy to identify who
-          will thrive in your work culture—even if their resume doesn’t show it
-          yet.
-        </p>
-      </div>
-    </section>
+      <section id="contact">
+        <h2>Get in Touch</h2>
+        <p>Email us at <a href="mailto:hello@t5.eu">hello@t5.eu</a></p>
+      </section>
+    </main>
 
-    <section class="section">
-      <div class="container">
-        <h2>Let's Talk</h2>
-        <p>
-          Ready to hire smarter? Get in touch to see how SkillForge can be
-          tailored for your team.
-        </p>
-        <a href="mailto:contact@skillforge.ai" class="btn">Contact Us</a>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <p>&copy; 2025 SkillForge. All rights reserved.</p>
+    <footer>
+      <p>© 2025 T5. All rights reserved.</p>
     </footer>
+
+    <script src="background.js"></script>
   </body>
 </html>
