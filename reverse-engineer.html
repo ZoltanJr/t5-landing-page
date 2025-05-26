@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reverse Engineer - Multi-Round</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f8fbff;
+        color: #333;
+        margin: 0;
+        padding: 2rem;
+      }
+
+      h1,
+      h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .machine,
+      .builder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .input-box input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        width: 100px;
+        text-align: center;
+      }
+
+      .output-box {
+        padding: 1rem;
+        background-color: #b8e1ff;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+      }
+
+      .builder select,
+      .builder input[type='number'] {
+        margin: 0.25rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+
+      button {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        margin-top: 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .submit {
+        background-color: #94fbab;
+      }
+
+      .next {
+        background-color: #ffd580;
+      }
+
+      .next:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .feedback {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 1rem;
+      }
+
+      .timer {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
+
+      a {
+        display: block;
+        text-align: center;
+        margin-top: 2rem;
+        color: #333;
+        text-decoration: none;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Reverse Engineer</h1>
+    <p>Decode the rule. Play in 3 rounds!</p>
+    <div class="timer" id="timer">⏱ Time: 0s</div>
+
+    <div class="machine">
+      <h2>🔍 Black Box Machine</h2>
+      <div class="input-box">
+        <label>Input: <input type="number" id="machine-input" /></label>
+        <button onclick="runMachine()">Run</button>
+      </div>
+      <div class="output-box" id="machine-output">Output: ?</div>
+    </div>
+
+    <div class="builder">
+      <h2>🛠️ Your Replication</h2>
+      <div>
+        <label
+          >x
+          <select id="op1">
+            <option value="add">+</option>
+            <option value="sub">−</option>
+            <option value="mul">×</option>
+            <option value="div">÷</option>
+          </select>
+        </label>
+        <input type="number" id="val1" value="1" />
+      </div>
+      <div>
+        <label
+          >then
+          <select id="op2">
+            <option value="add">+</option>
+            <option value="sub">−</option>
+            <option value="mul">×</option>
+            <option value="div">÷</option>
+          </select>
+        </label>
+        <input type="number" id="val2" value="1" />
+      </div>
+      <button class="submit" onclick="checkGuess()">Submit</button>
+      <button class="next" id="nextBtn" onclick="nextRound()" disabled>
+        Next Round
+      </button>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <a href="index.html">← Back to T5 Home</a>
+
+    <script>
+      const rounds = [(x) => x * 3 - 2, (x) => (x + 4) / 2, (x) => x * 2 + 5];
+      let currentRound = 0;
+      let timerInterval;
+      let startTime;
+
+      function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('timer').textContent = `⏱ Time: ${elapsed}s`;
+      }
+
+      function startRound() {
+        document.getElementById('machine-input').value = '';
+        document.getElementById('machine-output').textContent = 'Output: ?';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('nextBtn').disabled = true;
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+      }
+
+      function runMachine() {
+        const input = parseFloat(
+          document.getElementById('machine-input').value
+        );
+        if (isNaN(input)) return alert('Enter a number!');
+        const output = rounds[currentRound](input);
+        document.getElementById('machine-output').textContent =
+          'Output: ' + output;
+      }
+
+      function checkGuess() {
+        const testValues = [2, 5, 8];
+        const op1 = document.getElementById('op1').value;
+        const val1 = parseFloat(document.getElementById('val1').value);
+        const op2 = document.getElementById('op2').value;
+        const val2 = parseFloat(document.getElementById('val2').value);
+
+        const guessLogic = (x) => apply(op2, apply(op1, x, val1), val2);
+        const correctLogic = rounds[currentRound];
+
+        const allMatch = testValues.every(
+          (val) => correctLogic(val) === guessLogic(val)
+        );
+
+        document.getElementById('feedback').textContent = allMatch
+          ? "✅ Correct! You've decoded this round!"
+          : '❌ Not quite. Try again!';
+
+        if (allMatch) {
+          clearInterval(timerInterval);
+          if (currentRound < rounds.length - 1) {
+            document.getElementById('nextBtn').disabled = false;
+          } else {
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').textContent =
+              'All rounds completed';
+          }
+        }
+      }
+
+      function apply(op, a, b) {
+        switch (op) {
+          case 'add':
+            return a + b;
+          case 'sub':
+            return a - b;
+          case 'mul':
+            return a * b;
+          case 'div':
+            return b !== 0 ? a / b : NaN;
+          default:
+            return NaN;
+        }
+      }
+
+      function nextRound() {
+        if (currentRound < rounds.length - 1) {
+          currentRound++;
+          startRound();
+        }
+      }
+
+      startRound();
+    </script>
+  </body>
+</html>
