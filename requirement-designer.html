@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Puzzle - T5 Game</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f4faff;
+        color: #333;
+        padding: 2rem;
+      }
+
+      h1,
+      p {
+        text-align: center;
+      }
+
+      .puzzle-board {
+        max-width: 700px;
+        margin: 2rem auto;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .scenario {
+        background-color: #b8e1ff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .choices {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+
+      .option {
+        background-color: #a9fff7;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem;
+        width: 160px;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+
+      .option.selected {
+        border-color: #94fbab;
+        background-color: #94fbab;
+      }
+
+      .submit-btn {
+        display: block;
+        margin: 0.5rem auto;
+        padding: 0.75rem 1.5rem;
+        background-color: #94fbab;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .next-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .feedback {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 1rem;
+      }
+
+      a {
+        display: block;
+        text-align: center;
+        margin-top: 2rem;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Requirement Designer</h1>
+    <p>
+      Figure out what data is absolutely essential for the system to function.
+    </p>
+
+    <div class="puzzle-board">
+      <div class="scenario" id="scenario"></div>
+
+      <div class="choices" id="choices"></div>
+
+      <button class="submit-btn" onclick="checkAnswer()">Submit Answer</button>
+      <button
+        class="submit-btn next-btn"
+        id="nextBtn"
+        onclick="nextRound()"
+        disabled
+      >
+        Next Round
+      </button>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <a href="index.html">← Back to T5 Home</a>
+
+    <script>
+      const rounds = [
+        {
+          scenario:
+            'Design a service to book a meeting room. What information do you need from the user?',
+          options: ['User', 'Room', 'Time', 'Admin', 'Confirmation'],
+          answer: ['User', 'Room', 'Time'],
+        },
+        {
+          scenario:
+            "You're building a task-sharing app. Which items are needed to assign a task?",
+          options: [
+            'Task Title',
+            'Due Date',
+            'Assignee',
+            'Completion Status',
+            'Project Description',
+          ],
+          answer: ['Task Title', 'Due Date', 'Assignee'],
+        },
+        {
+          scenario:
+            'Create an API to register participants for an event. Choose only what’s required.',
+          options: [
+            'Email',
+            'Ticket Type',
+            'Dietary Preferences',
+            'Guest Count',
+            'Profile Picture',
+          ],
+          answer: ['Email', 'Ticket Type', 'Guest Count'],
+        },
+      ];
+
+      let currentRound = 0;
+
+      function renderRound() {
+        const round = rounds[currentRound];
+        document.getElementById('scenario').textContent = round.scenario;
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = '';
+        round.options.forEach((opt) => {
+          const div = document.createElement('div');
+          div.className = 'option';
+          div.dataset.value = opt;
+          div.textContent = opt;
+          div.onclick = () => div.classList.toggle('selected');
+          choicesDiv.appendChild(div);
+        });
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('nextBtn').disabled = true;
+      }
+
+      function checkAnswer() {
+        const selected = Array.from(
+          document.querySelectorAll('.option.selected')
+        ).map((el) => el.dataset.value);
+        const correct = rounds[currentRound].answer;
+        const allCorrect =
+          correct.every((val) => selected.includes(val)) &&
+          selected.length === correct.length;
+
+        const feedback = document.getElementById('feedback');
+        if (allCorrect) {
+          feedback.textContent = '✅ Correct!';
+          if (currentRound < rounds.length - 1) {
+            document.getElementById('nextBtn').disabled = false;
+          } else {
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').textContent =
+              'All rounds completed';
+          }
+        } else {
+          feedback.textContent = "❌ Try again. Think about what's necessary.";
+        }
+      }
+
+      function nextRound() {
+        if (currentRound < rounds.length - 1) {
+          currentRound++;
+          renderRound();
+        }
+      }
+
+      renderRound();
+    </script>
+  </body>
+</html>
