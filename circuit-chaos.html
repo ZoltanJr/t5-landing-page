@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circuit Chaos</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f4f8ff;
+        color: #333;
+        margin: 0;
+        padding: 2rem;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .instructions {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .circuit-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        max-width: 900px;
+        margin: auto;
+        position: relative;
+      }
+
+      .column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .input,
+      .drop-zone,
+      .prewired {
+        width: 100px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 6px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .input {
+        background-color: #b8e1ff;
+        border: 1px solid #82aba1;
+      }
+
+      .drop-zone {
+        background: #fff;
+        border: 2px dashed #ccc;
+        cursor: pointer;
+      }
+
+      .prewired {
+        background-color: #d6f5d6;
+        border: 2px solid #5cb85c;
+      }
+
+      .gate {
+        background: #a9fff7;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border-radius: 6px;
+        cursor: grab;
+        text-align: center;
+        font-weight: bold;
+        display: inline-block;
+      }
+
+      #gate-bin {
+        text-align: center;
+        margin-top: 3rem;
+      }
+
+      button {
+        display: inline-block;
+        margin: 1rem auto;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      #check {
+        background-color: #94fbab;
+      }
+
+      #restart:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      #restart {
+        background-color: #ffd580;
+      }
+
+      #return-home {
+        background-color: #bcb6ff;
+        text-decoration: none;
+        color: #000;
+      }
+
+      #timer,
+      #result {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 1rem;
+      }
+
+      .column h3 {
+        margin-bottom: 0.5rem;
+      }
+
+      .label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: -1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Circuit Chaos</h1>
+    <div class="instructions">
+      <p>
+        Drag gates into drop zones to solve the puzzle. Output must be
+        <strong>true</strong>.
+      </p>
+    </div>
+
+    <div class="circuit-board">
+      <div class="column">
+        <h3>Inputs</h3>
+        <div class="input" id="inputA">A: true</div>
+        <div class="input" id="inputB">B: false</div>
+        <div class="input" id="inputC">C: true</div>
+      </div>
+
+      <div class="column">
+        <h3>Gate 1</h3>
+        <div class="drop-zone" data-slot="1"></div>
+        <div class="label" id="label1">(A ? B)</div>
+      </div>
+
+      <div class="column">
+        <h3>Gate 2</h3>
+        <div class="prewired" data-slot="2" id="lockedGate">XOR (locked)</div>
+        <div class="label" id="label2">(? ? C)</div>
+      </div>
+
+      <div class="column">
+        <h3>Gate 3</h3>
+        <div class="drop-zone" data-slot="3"></div>
+        <div class="label" id="label3">(? ? A)</div>
+      </div>
+    </div>
+
+    <div id="gate-bin">
+      <p><strong>Available Gates</strong></p>
+      <div class="gate" draggable="true" data-type="AND">AND</div>
+      <div class="gate" draggable="true" data-type="OR">OR</div>
+      <div class="gate" draggable="true" data-type="XOR">XOR</div>
+      <div class="gate" draggable="true" data-type="NAND">NAND</div>
+    </div>
+
+    <div style="text-align: center">
+      <button id="check">Check Solution</button>
+      <button id="restart" disabled>Next Round</button>
+      <a id="return-home" href="index.html">← Return to Main Site</a>
+    </div>
+
+    <div id="timer">⏱ Time: 0s</div>
+    <div id="result"></div>
+
+    <script>
+      let currentRound = 0;
+      const maxRounds = 3;
+      let droppedGate = null;
+      let timerInterval;
+      let startTime;
+      const gates = document.querySelectorAll('.gate');
+      const zones = document.querySelectorAll('.drop-zone:not(.prewired)');
+      const timerEl = document.getElementById('timer');
+      const restartBtn = document.getElementById('restart');
+
+      const problems = [
+        {
+          A: true,
+          B: false,
+          C: true,
+          locked: 'XOR',
+          solution: (A, B, C) =>
+            applyGate('AND', applyGate('XOR', applyGate('AND', A, B), C), A),
+        },
+        {
+          A: false,
+          B: true,
+          C: false,
+          locked: 'OR',
+          solution: (A, B, C) =>
+            applyGate('NAND', applyGate('OR', applyGate('OR', A, B), C), A),
+        },
+        {
+          A: true,
+          B: true,
+          C: false,
+          locked: 'AND',
+          solution: (A, B, C) =>
+            applyGate('XOR', applyGate('AND', applyGate('XOR', A, B), C), A),
+        },
+      ];
+
+      function startRound() {
+        const prob = problems[currentRound];
+        document.getElementById('inputA').textContent = `A: ${prob.A}`;
+        document.getElementById('inputB').textContent = `B: ${prob.B}`;
+        document.getElementById('inputC').textContent = `C: ${prob.C}`;
+        document.getElementById(
+          'lockedGate'
+        ).textContent = `${prob.locked} (locked)`;
+        document
+          .getElementById('lockedGate')
+          .setAttribute('data-selected', prob.locked);
+        document.getElementById('label1').textContent = '(A ? B)';
+        document.getElementById('label2').textContent = '(? ? C)';
+        document.getElementById('label3').textContent = '(? ? A)';
+        document.getElementById('result').textContent = '';
+        zones.forEach((zone) => {
+          zone.textContent = '';
+          zone.removeAttribute('data-selected');
+        });
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          timerEl.textContent = `⏱ Time: ${elapsed}s`;
+        }, 1000);
+        restartBtn.disabled = true;
+      }
+
+      function applyGate(type, a, b) {
+        switch (type) {
+          case 'AND':
+            return a && b;
+          case 'OR':
+            return a || b;
+          case 'XOR':
+            return a !== b;
+          case 'NAND':
+            return !(a && b);
+          default:
+            return false;
+        }
+      }
+
+      gates.forEach((gate) => {
+        gate.addEventListener('dragstart', () => {
+          droppedGate = gate.getAttribute('data-type');
+        });
+      });
+
+      zones.forEach((zone) => {
+        zone.addEventListener('dragover', (e) => e.preventDefault());
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if (droppedGate) {
+            zone.textContent = droppedGate;
+            zone.setAttribute('data-selected', droppedGate);
+          }
+        });
+      });
+
+      document.getElementById('check').addEventListener('click', () => {
+        const prob = problems[currentRound];
+        const A = prob.A,
+          B = prob.B,
+          C = prob.C;
+        const gate1 = document
+          .querySelector('[data-slot="1"]')
+          .getAttribute('data-selected');
+        const gate2 = prob.locked;
+        const gate3 = document
+          .querySelector('[data-slot="3"]')
+          .getAttribute('data-selected');
+
+        if (!gate1 || !gate3) {
+          document.getElementById('result').textContent =
+            '❌ Fill all open gates first!';
+          return;
+        }
+
+        const inter1 = applyGate(gate1, A, B);
+        const inter2 = applyGate(gate2, inter1, C);
+        const output = applyGate(gate3, inter2, A);
+
+        if (prob.solution(A, B, C) === output) {
+          clearInterval(timerInterval);
+          document.getElementById('result').textContent = '✅ Correct!';
+          document.getElementById('label1').textContent = `(A ${gate1} B)`;
+          document.getElementById(
+            'label2'
+          ).textContent = `(${gate1} ${gate2} C)`;
+          document.getElementById(
+            'label3'
+          ).textContent = `(${gate2} ${gate3} A)`;
+          if (currentRound < maxRounds - 1) {
+            restartBtn.disabled = false;
+          } else {
+            restartBtn.disabled = true;
+            restartBtn.textContent = 'All rounds completed';
+          }
+        } else {
+          document.getElementById('result').textContent =
+            '❌ Incorrect. Try a different configuration.';
+        }
+      });
+
+      restartBtn.addEventListener('click', () => {
+        if (currentRound < maxRounds - 1) {
+          currentRound++;
+          startRound();
+        }
+      });
+
+      startRound();
+    </script>
+  </body>
+</html>
